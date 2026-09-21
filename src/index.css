@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme {
+  /* ---- inovare.risco Design Tokens — padrão de marca InovareTech ---- */
+  /* Mesma estrutura de tokens do inovare.fisio (mesmos nomes de variável,
+     pra reaproveitar os componentes de UI sem alteração), mas com paleta
+     própria — violeta/ameixa — pra diferenciar visualmente na hora de
+     alternar entre os dois sistemas. */
+  --color-ink: #1c1726;
+  --color-ink-soft: #564d68;
+
+  --color-surface: #f6f4fa;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #ede9f5;
+
+  /* Primária: violeta — identidade do módulo de risco */
+  --color-clinical-50: #f1eafb;
+  --color-clinical-100: #e2d3f6;
+  --color-clinical-300: #b98be9;
+  --color-clinical-500: #7c4dc4;
+  --color-clinical-600: #633c9e;
+  --color-clinical-700: #4c2e79;
+
+  /* Secundária: verde de recuperação — mesma semântica do fisio */
+  --color-recovery-100: #dfece3;
+  --color-recovery-400: #6fae7d;
+  --color-recovery-500: #4f8f5f;
+  --color-recovery-600: #3c7249;
+
+  /* Atenção: âmbar — risco moderado */
+  --color-attention-100: #f7e6cd;
+  --color-attention-400: #d98d3d;
+  --color-attention-600: #a86825;
+
+  /* Crítico: vermelho — risco alto/muito alto */
+  --color-critical-100: #f5dbd8;
+  --color-critical-400: #bd4238;
+  --color-critical-600: #8f2e26;
+
+  --color-line: #e1d9ee;
+  --color-line-strong: #cabbe0;
+
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    color-scheme: light dark;
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-clinical-500);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background-color: var(--color-clinical-100);
+    color: var(--color-clinical-700);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Modo escuro: paleta invertida mantendo a identidade violeta */
+.dark {
+  --color-ink: #f0ecf7;
+  --color-ink-soft: #c2b8d4;
+  --color-surface: #170f21;
+  --color-surface-raised: #1f1729;
+  --color-surface-sunken: #120b1a;
+  --color-line: #34293f;
+  --color-line-strong: #493a57;
+  --color-clinical-50: #33224d;
+  --color-clinical-100: #402a5e;
+}
