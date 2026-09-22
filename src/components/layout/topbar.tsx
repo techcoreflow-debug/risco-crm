@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Menu, LogOut, Settings, Moon, Sun, ShieldCheck, KeyRound, ExternalLink } from "lucide-react";
+import { Menu, LogOut, Settings, Moon, Sun, ShieldCheck, KeyRound, ExternalLink, Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "@/store/app-store";
 import { useAuth } from "@/auth/auth-provider";
+import { useAlertas } from "@/data/alertas";
 import { supabase } from "@/lib/supabase";
 import { notificarErro, notificarSucesso } from "@/store/toast-store";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -31,6 +32,8 @@ export function Topbar() {
   const toggleTheme = useAppStore((s) => s.toggleTheme);
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const alertas = useAlertas();
+  const alertasCriticos = alertas.filter((a) => a.severidade === "critico");
   const [openTrocarSenha, setOpenTrocarSenha] = useState(false);
   const [salvandoSenha, setSalvandoSenha] = useState(false);
 
@@ -77,6 +80,34 @@ export function Topbar() {
       )}
 
       <div className="ml-auto flex items-center gap-1.5">
+        <DropdownMenu>
+          <DropdownMenuTrigger className="relative rounded-md p-2 text-ink-soft hover:bg-surface-sunken" aria-label="Alertas">
+            <Bell className="h-4.5 w-4.5" />
+            {alertasCriticos.length > 0 && (
+              <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-critical-500 px-1 text-[10px] font-semibold text-white">
+                {alertasCriticos.length > 9 ? "9+" : alertasCriticos.length}
+              </span>
+            )}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuLabel>Alertas críticos</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {alertasCriticos.length === 0 ? (
+              <p className="px-2 py-3 text-center text-xs text-ink-soft">Nada crítico agora.</p>
+            ) : (
+              alertasCriticos.slice(0, 6).map((a) => (
+                <DropdownMenuItem key={a.id} onSelect={() => navigate("/alertas")} className="flex-col items-start gap-0.5">
+                  <span className="text-xs font-medium text-ink">{a.titulo}</span>
+                  <span className="text-[11px] text-ink-soft">{a.pacienteNome} · {a.detalhe}</span>
+                </DropdownMenuItem>
+              ))
+            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => navigate("/alertas")}>
+              <Bell className="h-4 w-4" /> Ver central de alertas
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <button
           className="rounded-md p-2 text-ink-soft hover:bg-surface-sunken"
           onClick={toggleTheme}

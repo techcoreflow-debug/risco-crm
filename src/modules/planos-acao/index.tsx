@@ -1,9 +1,8 @@
 import { useMemo, useState, type FormEvent } from "react";
-import { ListChecks, Plus, Check } from "lucide-react";
+import { ListChecks, Plus, ChevronRight, ChevronLeft, Undo2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -13,18 +12,23 @@ import { useRiskActionPlans, useRiscoProfiles, usePatientsRef, useAdmissoesAtiva
 import { notificarErro, notificarSucesso } from "@/store/toast-store";
 import { useAppStore } from "@/store/app-store";
 import { hojeLocalIso } from "@/lib/data-local";
-import type { StatusPlanoAcao } from "@/types/domain";
+import type { RiskActionPlan, StatusPlanoAcao } from "@/types/domain";
 
-const STATUS_LABEL: Record<StatusPlanoAcao, string> = {
-  pendente: "Pendente",
-  em_andamento: "Em andamento",
-  concluido: "Concluído",
+const COLUNAS: { status: StatusPlanoAcao; titulo: string; corBorda: string; corTitulo: string }[] = [
+  { status: "pendente", titulo: "Pendente", corBorda: "border-t-ink-soft/40", corTitulo: "text-ink-soft" },
+  { status: "em_andamento", titulo: "Em andamento", corBorda: "border-t-attention-400", corTitulo: "text-attention-700" },
+  { status: "concluido", titulo: "Concluído", corBorda: "border-t-recovery-400", corTitulo: "text-recovery-700" },
+];
+
+const PROXIMO: Record<StatusPlanoAcao, StatusPlanoAcao | null> = {
+  pendente: "em_andamento",
+  em_andamento: "concluido",
+  concluido: null,
 };
-
-const STATUS_VARIANT: Record<StatusPlanoAcao, "neutral" | "attention" | "recovery"> = {
-  pendente: "neutral",
-  em_andamento: "attention",
-  concluido: "recovery",
+const ANTERIOR: Record<StatusPlanoAcao, StatusPlanoAcao | null> = {
+  pendente: null,
+  em_andamento: "pendente",
+  concluido: "em_andamento",
 };
 
 export default function PlanosAcao() {
@@ -42,10 +46,16 @@ export default function PlanosAcao() {
   const pacientesInternados = useMemo(() => pacientes.filter((p) => idsInternadosAtivos.has(p.id)), [pacientes, idsInternadosAtivos]);
   const opcoesPacientes = useMemo(() => pacientesInternados.map((p) => ({ value: p.id, label: p.full_name })), [pacientesInternados]);
 
-  const planosOrdenados = useMemo(
-    () => [...planos].sort((a, b) => (a.status === "concluido" ? 1 : 0) - (b.status === "concluido" ? 1 : 0)),
-    [planos]
-  );
+  const hoje = hojeLocalIso();
+
+  const colunasComPlanos = useMemo(() => {
+    return COLUNAS.map((coluna) => ({
+      ...coluna,
+      planos: planos
+        .filter((p) => p.status === coluna.status)
+        .sort((a, b) => (a.prazo ?? "9999").localeCompare(b.prazo ?? "9999")),
+    }));
+  }, [planos]);
 
   function abrirNovo() {
     setPacienteId("");
@@ -79,23 +89,61 @@ export default function PlanosAcao() {
     }
   }
 
-  async function avancarStatus(id: string, statusAtual: StatusPlanoAcao) {
-    const proximo: StatusPlanoAcao = statusAtual === "pendente" ? "em_andamento" : "concluido";
+  async function moverPara(id: string, novoStatus: StatusPlanoAcao) {
     try {
       await repository.riskActionPlans.update(id, {
-        status: proximo,
-        concluido_em: proximo === "concluido" ? hojeLocalIso() : null,
+        status: novoStatus,
+        concluido_em: novoStatus === "concluido" ? hoje : null,
       });
     } catch (erro) {
-      notificarErro("Não foi possível atualizar o plano", erro);
+      notificarErro("Não foi possível mover o plano", erro);
     }
+  }
+
+  function Cartao({ plano }: { plano: RiskActionPlan }) {
+    const paciente = pacientes.find((p) => p.id === plano.patient_id);
+    const responsavel = responsaveis.find((r) => r.id === plano.responsavel_id);
+    const atrasado = plano.status !== "concluido" && !!plano.prazo && plano.prazo < hoje;
+    const proximo = PROXIMO[plano.status];
+    const anterior = ANTERIOR[plano.status];
+    return (
+      <div className={`flex flex-col gap-2 rounded-md border bg-surface-raised p-3 shadow-sm ${atrasado ? "border-critical-400/60" : "border-line"}`}>
+        <p className="text-sm font-medium text-ink">{paciente?.full_name ?? "—"}</p>
+        <p className="text-sm text-ink-soft line-clamp-3">{plano.descricao}</p>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-soft">
+          {responsavel && <span>{responsavel.full_name}</span>}
+          {plano.prazo && (
+            <span className={atrasado ? "font-medium text-critical-600" : ""}>
+              {atrasado ? "Atrasado desde " : "Prazo "}
+              {new Date(`${plano.prazo}T00:00:00`).toLocaleDateString("pt-BR")}
+            </span>
+          )}
+        </div>
+        <div className="mt-1 flex items-center justify-between gap-2">
+          {anterior ? (
+            <Button variant="ghost" size="sm" onClick={() => moverPara(plano.id, anterior)} title="Voltar etapa">
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </Button>
+          ) : <span />}
+          {plano.status === "concluido" ? (
+            <Button variant="ghost" size="sm" onClick={() => moverPara(plano.id, "em_andamento")} title="Reabrir">
+              <Undo2 className="h-3.5 w-3.5" /> Reabrir
+            </Button>
+          ) : proximo ? (
+            <Button size="sm" onClick={() => moverPara(plano.id, proximo)}>
+              {proximo === "concluido" ? "Concluir" : "Iniciar"} <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          ) : null}
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Planos de Ação"
-        description="Medidas preventivas com responsável e prazo, vinculadas a cada paciente."
+        description="Medidas preventivas com responsável e prazo, vinculadas a cada paciente — arraste mentalmente da esquerda pra direita."
         actions={
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -147,51 +195,34 @@ export default function PlanosAcao() {
         }
       />
 
-      <Card>
-        {planosOrdenados.length === 0 ? (
+      {planos.length === 0 ? (
+        <Card>
           <div className="flex flex-col items-center gap-2 py-16 text-center">
             <ListChecks className="h-8 w-8 text-ink-soft" />
             <p className="font-medium text-ink">Nenhum plano de ação cadastrado</p>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-ink-soft">
-                  <th className="px-4 py-3 font-medium">Paciente</th>
-                  <th className="px-4 py-3 font-medium">Medida</th>
-                  <th className="px-4 py-3 font-medium">Responsável</th>
-                  <th className="px-4 py-3 font-medium">Prazo</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium" />
-                </tr>
-              </thead>
-              <tbody>
-                {planosOrdenados.map((plano) => {
-                  const paciente = pacientes.find((p) => p.id === plano.patient_id);
-                  const responsavel = responsaveis.find((r) => r.id === plano.responsavel_id);
-                  return (
-                    <tr key={plano.id} className="border-b border-line last:border-0 hover:bg-surface-sunken/60">
-                      <td className="px-4 py-3 font-medium text-ink">{paciente?.full_name ?? "—"}</td>
-                      <td className="px-4 py-3 text-ink-soft">{plano.descricao}</td>
-                      <td className="px-4 py-3 text-ink-soft">{responsavel?.full_name ?? "—"}</td>
-                      <td className="px-4 py-3 text-ink-soft">{plano.prazo ?? "—"}</td>
-                      <td className="px-4 py-3"><Badge variant={STATUS_VARIANT[plano.status]}>{STATUS_LABEL[plano.status]}</Badge></td>
-                      <td className="px-4 py-3 text-right">
-                        {plano.status !== "concluido" && (
-                          <Button variant="ghost" size="sm" onClick={() => avancarStatus(plano.id, plano.status)}>
-                            <Check className="h-4 w-4" /> {plano.status === "pendente" ? "Iniciar" : "Concluir"}
-                          </Button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {colunasComPlanos.map((coluna) => (
+            <Card key={coluna.status} className={`border-t-4 ${coluna.corBorda}`}>
+              <CardHeader className="pb-3">
+                <CardTitle className={`flex items-center justify-between text-sm font-semibold uppercase tracking-wide ${coluna.corTitulo}`}>
+                  {coluna.titulo}
+                  <span className="rounded-full bg-surface-sunken px-2 py-0.5 text-xs font-medium text-ink-soft">{coluna.planos.length}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-3">
+                {coluna.planos.length === 0 ? (
+                  <p className="py-6 text-center text-xs text-ink-soft">Nada aqui.</p>
+                ) : (
+                  coluna.planos.map((plano) => <Cartao key={plano.id} plano={plano} />)
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

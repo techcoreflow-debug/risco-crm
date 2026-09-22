@@ -5,6 +5,49 @@ uma entrada aqui, na mesma entrega — mesmo padrão do inovare.fisio.
 
 ---
 
+## v0.5.0 — 21/09/2026
+
+**Central de Alertas + Auditoria (Cultura de Segurança)** — fecha a
+primeira leva de 8 painéis da visão "risco visionário" pedida pelo
+usuário. Sem tabela nova — tudo derivado dos dados que já existem,
+lido em tempo real (Realtime).
+
+- **Central de Alertas** (`/alertas`) + sininho na barra superior com
+  contador de críticos: junta 5 tipos de alerta — risco alto/muito alto
+  sem plano de ação em aberto, reavaliação vencida, plano de ação
+  atrasado, paciente internado há mais de 1 dia sem nenhuma avaliação,
+  e evento sentinela com dano nas últimas 48h. Não é notificação por
+  push/e-mail (esse front não tem essa infra) — é leitura reativa dos
+  dados, então aparece sozinho assim que a condição muda.
+- **Auditoria** (`/auditoria`): ranking por profissional (avaliações
+  feitas, reavaliações em dia, planos de ação no prazo como responsável,
+  eventos notificados) + trilha recente com os últimos 40 registros de
+  atividade (quem fez o quê e quando), composta a partir dos dados
+  existentes.
+
+Com isso fecham os 8 painéis da visão original: Matriz de Risco, Painel
+Executivo, Eventos Sentinela, Kanban de Planos de Ação, Linha do tempo
+do paciente, Alertas proativos e Auditoria/Cultura de Segurança.
+
+---
+
+## v0.4.0 — 21/09/2026
+
+**Kanban de Planos de Ação + Linha do tempo do paciente** — sem tabela
+nova, só UI/UX em cima do que já existia.
+
+- **Planos de Ação** (`/planos-acao`) virou Kanban: 3 colunas (Pendente /
+  Em andamento / Concluído), cartão por plano com paciente, responsável,
+  prazo (destacado em vermelho se atrasado) e botões pra mover entre
+  colunas — inclusive voltar ou reabrir um concluído por engano.
+- **Linha do tempo do paciente**: dentro de Pacientes, ao abrir um
+  paciente agora tem 2 abas — "Tipos de risco" (como já era) e "Linha do
+  tempo", que junta em ordem cronológica avaliações de risco, criação e
+  conclusão de planos de ação e eventos sentinela — a história completa
+  do paciente numa tela só, sem pular entre módulos.
+
+---
+
 ## v0.3.0 — 21/09/2026
 
 **Eventos Sentinela / Notificação de Incidentes** (`/eventos-sentinela`) —

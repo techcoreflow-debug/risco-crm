@@ -10,6 +10,8 @@ import {
   Grid3x3,
   Gauge,
   AlertOctagon,
+  Bell,
+  ClipboardList,
 } from "lucide-react";
 
 export interface ModuleDef {
@@ -39,6 +41,14 @@ export const moduleGroups: ModuleGroup[] = [
         label: "Dashboard",
         icon: LayoutDashboard,
         description: "Panorama de risco: pacientes por nível, avaliações pendentes, planos de ação em aberto.",
+        status: "pronto",
+      },
+      {
+        slug: "alertas",
+        path: "/alertas",
+        label: "Central de Alertas",
+        icon: Bell,
+        description: "Risco sem plano de ação, reavaliação vencida, plano atrasado, internado sem avaliação, evento recente — tudo que pede atenção agora.",
         status: "pronto",
       },
       {
@@ -110,6 +120,14 @@ export const moduleGroups: ModuleGroup[] = [
     label: "Administração",
     recolhidoPorPadrao: true,
     modules: [
+      {
+        slug: "auditoria",
+        path: "/auditoria",
+        label: "Auditoria",
+        icon: ClipboardList,
+        description: "Cultura de segurança — quantas avaliações cada profissional fez, cobertura de reavaliação e eficácia dos planos de ação.",
+        status: "pronto",
+      },
       {
         slug: "usuarios",
         path: "/usuarios",
