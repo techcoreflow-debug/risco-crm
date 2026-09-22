@@ -5,6 +5,33 @@ uma entrada aqui, na mesma entrega — mesmo padrão do inovare.fisio.
 
 ---
 
+## v0.3.0 — 21/09/2026
+
+**Eventos Sentinela / Notificação de Incidentes** (`/eventos-sentinela`) —
+novo módulo, nova tabela (`risk_incidents`, migration `0006`). Até aqui o
+risco só guardava a previsão (avaliação de risco); agora dá pra
+registrar o que de fato aconteceu (queda, LPP, etc.) e o sistema cruza
+automaticamente com a avaliação de risco vigente ANTES do evento —
+mostra se a triagem tinha, ou não, identificado aquele paciente como
+alto/muito alto.
+
+- Formulário de notificação: paciente, tipo de risco, gravidade (escala
+  near miss → óbito, vocabulário do RDC 36/2013), data/hora, descrição,
+  fatores contribuintes e medidas tomadas. Ao escolher paciente + tipo +
+  data, mostra na hora qual era o risco previsto até aquele momento.
+- Vincula automaticamente à internação vigente na data do evento (mesmo
+  que já tenha tido alta depois) e à avaliação de risco mais recente
+  anterior ao evento.
+- Indicador **"Sensibilidade da triagem"**: entre os eventos COM DANO,
+  % que já tinham sido identificados como alto/muito alto antes de
+  acontecer — é o número que prova (ou desmente) se a avaliação de
+  risco está funcionando.
+- **Importante**: rodar a migration `0006_eventos_sentinela.sql` no
+  banco antes de publicar este build (cria a tabela `risk_incidents`,
+  grants e RLS — mesmo processo das migrations anteriores).
+
+---
+
 ## v0.2.0 — 21/09/2026
 
 **Primeira leva de painéis "visionários"** — pedido do usuário pra

@@ -3,6 +3,7 @@ import type {
   RiskType,
   RiskAssessment,
   RiskActionPlan,
+  RiskIncident,
   PatientRef,
   AdmissionRef,
   HospitalRef,
@@ -22,6 +23,7 @@ export interface Database {
       risk_types: { Row: RiskType; Insert: Partial<RiskType>; Update: Partial<RiskType> };
       risk_assessments: { Row: RiskAssessment; Insert: Partial<RiskAssessment>; Update: Partial<RiskAssessment> };
       risk_action_plans: { Row: RiskActionPlan; Insert: Partial<RiskActionPlan>; Update: Partial<RiskActionPlan> };
+      risk_incidents: { Row: RiskIncident; Insert: Partial<RiskIncident>; Update: Partial<RiskIncident> };
       patients: { Row: PatientRef; Insert: never; Update: never };
       admissions: { Row: AdmissionRef; Insert: never; Update: never };
       hospitals: { Row: HospitalRef; Insert: never; Update: never };

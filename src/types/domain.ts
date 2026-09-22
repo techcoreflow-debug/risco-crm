@@ -4,6 +4,7 @@
 export type RiscoRole = "admin" | "fisioterapeuta" | "enfermagem" | "outro";
 export type NivelRisco = "baixo" | "moderado" | "alto" | "muito_alto";
 export type StatusPlanoAcao = "pendente" | "em_andamento" | "concluido";
+export type GravidadeIncidente = "near_miss" | "sem_dano" | "dano_leve" | "dano_moderado" | "dano_grave" | "obito";
 
 export interface RiscoProfile {
   id: string; // mesmo id de auth.users — login compartilhado com o fisio
@@ -69,6 +70,30 @@ export interface RiskActionPlan {
   status: StatusPlanoAcao;
   prazo: string | null; // data (ISO)
   concluido_em: string | null;
+  created_at: string;
+}
+
+/**
+ * Evento Sentinela — o que REALMENTE aconteceu com o paciente (queda,
+ * LPP, etc.), em contraste com risk_assessments que guarda só a
+ * PREVISÃO. `risk_assessment_id`/`nivel_risco_previsto` guardam a
+ * avaliação vigente no momento do evento, quando existia uma — é o que
+ * permite comparar previsto × realizado.
+ */
+export interface RiskIncident {
+  id: string;
+  company_id: string;
+  patient_id: string;
+  admission_id: string | null;
+  risk_type_id: string;
+  risk_assessment_id: string | null;
+  nivel_risco_previsto: NivelRisco | null;
+  gravidade: GravidadeIncidente;
+  ocorrido_em: string; // timestamptz ISO
+  descricao: string;
+  fatores_contribuintes: string | null;
+  medidas_tomadas: string | null;
+  notificado_por: string;
   created_at: string;
 }
 

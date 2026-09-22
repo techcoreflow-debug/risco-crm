@@ -11,6 +11,7 @@ import type {
   RiskType,
   RiskAssessment,
   RiskActionPlan,
+  RiskIncident,
   PatientRef,
   AdmissionRef,
   HospitalRef,
@@ -47,6 +48,15 @@ export function useRiskActionPlans() {
     "risk_action_plans",
     { company_id: useActiveCompanyId() },
     "created_at",
+    true
+  );
+}
+
+export function useRiskIncidents() {
+  return useSupabaseCollection<RiskIncident>(
+    "risk_incidents",
+    { company_id: useActiveCompanyId() },
+    "ocorrido_em",
     true
   );
 }
@@ -123,5 +133,10 @@ export const repository = {
   },
   riscoProfiles: {
     update: (id: string, dados: Partial<RiscoProfile>) => atualizarLinha("risco_profiles", id, dados),
+  },
+  riskIncidents: {
+    create: (dados: Partial<RiskIncident>) => inserirLinha<RiskIncident>("risk_incidents", dados),
+    update: (id: string, dados: Partial<RiskIncident>) => atualizarLinha("risk_incidents", id, dados),
+    remove: (id: string) => excluirLinha("risk_incidents", id),
   },
 };

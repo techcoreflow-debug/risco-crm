@@ -16,6 +16,7 @@ const pageComponents: Record<string, ComponentType> = {
   "matriz-risco": lazy(() => import("@/modules/matriz-risco")),
   pacientes: lazy(() => import("@/modules/pacientes")),
   reavaliacoes: lazy(() => import("@/modules/reavaliacoes")),
+  "eventos-sentinela": lazy(() => import("@/modules/eventos-sentinela")),
   "planos-acao": lazy(() => import("@/modules/planos-acao")),
   "tipos-risco": lazy(() => import("@/modules/tipos-risco")),
   usuarios: lazy(() => import("@/modules/usuarios")),

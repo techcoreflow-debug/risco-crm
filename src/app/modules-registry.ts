@@ -9,6 +9,7 @@ import {
   Settings,
   Grid3x3,
   Gauge,
+  AlertOctagon,
 } from "lucide-react";
 
 export interface ModuleDef {
@@ -84,6 +85,14 @@ export const moduleGroups: ModuleGroup[] = [
         label: "Planos de Ação",
         icon: ListChecks,
         description: "Medidas preventivas com responsável e prazo, por paciente.",
+        status: "pronto",
+      },
+      {
+        slug: "eventos-sentinela",
+        path: "/eventos-sentinela",
+        label: "Eventos Sentinela",
+        icon: AlertOctagon,
+        description: "Notificação do que de fato aconteceu (queda, LPP...), cruzado com o risco previsto pela triagem.",
         status: "pronto",
       },
       {
