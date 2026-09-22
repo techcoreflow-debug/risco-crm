@@ -7,6 +7,8 @@ import {
   ListChecks,
   Users,
   Settings,
+  Grid3x3,
+  Gauge,
 } from "lucide-react";
 
 export interface ModuleDef {
@@ -36,6 +38,22 @@ export const moduleGroups: ModuleGroup[] = [
         label: "Dashboard",
         icon: LayoutDashboard,
         description: "Panorama de risco: pacientes por nível, avaliações pendentes, planos de ação em aberto.",
+        status: "pronto",
+      },
+      {
+        slug: "painel-executivo",
+        path: "/painel-executivo",
+        label: "Painel Executivo",
+        icon: Gauge,
+        description: "Índice de Risco Hospitalar, cobertura de avaliação, tendência semanal e ranking de unidades e tipos de risco.",
+        status: "pronto",
+      },
+      {
+        slug: "matriz-risco",
+        path: "/matriz-risco",
+        label: "Matriz de Risco",
+        icon: Grid3x3,
+        description: "Heatmap unidade × tipo de risco — onde estão os focos de risco alto/muito alto agora.",
         status: "pronto",
       },
     ],
